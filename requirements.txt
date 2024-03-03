@@ -1,3 +1,7 @@
-Django==2.2.19
+asgiref==3.7.2
+Django==4.2.10
+django-autoslug==1.9.9
 pytz==2024.1
 sqlparse==0.4.4
+typing_extensions==4.10.0
+tzdata==2024.1
