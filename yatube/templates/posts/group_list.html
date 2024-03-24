@@ -1,0 +1,28 @@
+{%extends "base.html"%}
+
+{% block title %}
+  Записи сообщества {{ group.title }}
+{% endblock %}
+
+{% block content %}
+  <h1> {{ group.title }} </h1>
+  <p> {{ group.description }} </p>
+  <!-- Перебор всех постов в группе -->
+  {% if group_posts %}
+    <!-- Если есть посты в группе -->
+    {% for post in group_posts %}
+      <article>
+        <ul>
+          <li>Автор:{{ post.author }}</li>
+          <li>Дата публикации:{{ post.pub_date }}</li>
+        </ul>
+        <p>{{post.text}} </p>
+        <br>
+      </article>
+      {% if not forloop.last %}<hr>{% endif %}
+    {% endfor %}
+  {% else %}
+    <!-- Если в группе нет постов -->
+    <p>В этой группе пока нет постов.</p>
+  {% endif %}
+{% endblock %}
