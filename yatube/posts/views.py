@@ -4,7 +4,7 @@ from .models import Post, Group
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 
-from .forms import PostForm
+from .forms import PostCreateForm
 
 
 User = get_user_model()
@@ -63,7 +63,7 @@ def post_detail(request, post_id):
 @login_required
 def post_create(request):
     if request.method == "POST":
-        form = PostForm(request.POST)
+        form = PostCreateForm(request.POST)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
@@ -72,7 +72,7 @@ def post_create(request):
 
         return render(request, "posts/create_post.html", {"form": form})
     else:
-        form = PostForm()
+        form = PostCreateForm()
     return render(request, "posts/create_post.html", {"form": form})
 
 
@@ -84,13 +84,13 @@ def post_edit(request, post_id):
         return redirect("posts:post_detail", post_id=post_id)
 
     if request.method == "POST":
-        form = PostForm(request.POST, instance=post)
+        form = PostCreateForm(request.POST, instance=post)
         if form.is_valid():
             form.save()
             return redirect("posts:post_detail", post_id=post_id)
 
     else:
-        form = PostForm(instance=post)
+        form = PostCreateForm(instance=post)
 
     context = {
         "form": form,

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions', #Фреймворк сеанса
     'django.contrib.messages', #Фреймворк для обмена сообщениями
     'django.contrib.staticfiles', #Фреймворк для управления статическими файлами
+    'sorl.thumbnail',
 ]
 
 MIDDLEWARE = [
@@ -130,11 +131,15 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 # My settings files:
 LOGIN_URL = 'users:login'
 LOGIN_REDIRECT_URL = 'posts:index'
-# LOGOUT_REDIRECT_URL = 'posts:index'
+LOGOUT_REDIRECT_URL = 'posts:index'
+PASSWORD_RESET_COMPLETE_URL = 'users:login'
 
 
 #  подключаю движок filebased.EmailBackend

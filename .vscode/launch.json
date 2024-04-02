@@ -17,3 +17,27 @@
         }
     ]
 }
+
+// --git
+// --vscode
+// --media
+// --venv
+// --yatube
+//     -about
+//     -core
+//     -htmlcov
+//     -posts
+//     -sent_emails
+//     -static
+//     -templates
+//     -users
+//     -youtube
+//     -.coverage
+//     -db. sqlite3
+//     -manage-
+// --gitignore
+// --LICENSE
+// --pylintrc
+// --pytest
+// --README
+// --requirements
