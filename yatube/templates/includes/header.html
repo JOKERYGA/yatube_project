@@ -12,51 +12,51 @@
       </button>
       <div class="collapse navbar-collapse justify-content-end" id="navbarNavigation">
         {% with request.resolver_match.view_name as view_name %}
-        <ul class="navbar-nav mb-2 mb-lg-0">
-          {% if user.is_authenticated %}
-            <!-- Пункты меню для авторизованного пользователя -->
-            <li class="nav-item"> 
-              <a class="nav-link {% if view_name == 'about:author' %}active{% endif %}" 
-                 href="{% url 'about:author' %}">Об авторе</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link {% if view_name == 'about:tech' %}active{% endif %}"
-                 href="{% url 'about:tech' %}">Технологии</a>
-            </li>
-            <li class="nav-item"> 
-              <a class="nav-link {% if view_name  == 'posts:post_create' %}active{% endif %}"
-              href="{% url 'posts:post_create' %}">Новая запись</a>
-            </li>
-            <li class="nav-item"> 
-              <a class="nav-link {% if view_name  == 'users:password_change_form' %}active{% endif %}"
-              href="{% url 'users:password_change_form' %}">Изменить пароль</a>
-            </li>
-            <li class="nav-item"> 
-              <a class="nav-link {% if view_name  == 'users:logout' %}active{% endif %}"
-              href="{% url 'users:logout' %}">Выйти</a>
-            </li>
-            <li class="nav-item">
-              Пользователь: {{ user.username }}
-            </li>
-          {% else %}
-            <!-- Пункты меню для неавторизованного пользователя -->
-            <li class="nav-item"> 
-              <a class="nav-link {% if view_name  == 'about:author' %}active{% endif %}" 
-              href="{% url 'about:author' %}">Об авторе</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link {% if view_name  == 'about:tech' %}active{% endif %}"
-              href="{% url 'about:tech' %}">Технологии</a>
-            </li>
-            <li class="nav-item"> 
-              <a class="nav-link {% if view_name  == 'users:login' %}active{% endif %}"
-              href="{% url 'users:login' %}">Войти</a>
-            </li>
-            <li class="nav-item"> 
-              <a class="nav-link {% if view_name  == 'users:signup' %}active{% endif %}"
-              href="{% url 'users:signup' %}">Регистрация</a>
-            </li>
-          {% endif %}
+          <ul class="navbar-nav mb-2 mb-lg-0 nav nav-pills">
+            {% if user.is_authenticated %}
+              <!-- Пункты меню для авторизованного пользователя -->
+              <li class="nav-item"> 
+                <a class="nav-link {% if view_name == 'about:author' %}active text-white {% endif %}"
+                  href="{% url 'about:author' %}">Об авторе</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if view_name == 'about:tech' %}active text-white{% endif %}" 
+                  href="{% url 'about:tech' %}">Технологии</a>
+              </li>
+              <li class="nav-item"> 
+                <a class="nav-link {% if view_name  == 'posts:post_create' %}active text-white{% endif %}"
+                href="{% url 'posts:post_create' %}">Новая запись</a>
+              </li>
+              <li class="nav-item"> 
+                <a class="nav-link {% if view_name  == 'users:password_change_form' %}active text-white{% endif %}"
+                href="{% url 'users:password_change_form' %}">Изменить пароль</a>
+              </li>
+              <li class="nav-item"> 
+                <a class="nav-link {% if view_name  == 'users:logout' %}active text-white{% endif %}"
+                href="{% url 'users:logout' %}">Выйти</a>
+              </li>
+              <li class="nav-item">
+                Пользователь: {{ user.username }}
+              </li>
+            {% else %}
+              <!-- Пункты меню для неавторизованного пользователя -->
+              <li class="nav-item"> 
+                <a class="nav-link {% if view_name  == 'about:author' %}active text-white{% endif %}" 
+                href="{% url 'about:author' %}">Об авторе</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if view_name  == 'about:tech' %}active text-white{% endif %}"
+                href="{% url 'about:tech' %}">Технологии</a>
+              </li>
+              <li class="nav-item"> 
+                <a class="nav-link {% if view_name  == 'users:login' %}active text-white{% endif %}"
+                href="{% url 'users:login' %}">Войти</a>
+              </li>
+              <li class="nav-item"> 
+                <a class="nav-link {% if view_name  == 'users:signup' %}active text-white{% endif %}"
+                href="{% url 'users:signup' %}">Регистрация</a>
+              </li>
+            {% endif %}
           {% endwith %}
         </ul>
       </div>

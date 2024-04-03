@@ -83,14 +83,15 @@ def post_edit(request, post_id):
     if request.user != post.author:
         return redirect("posts:post_detail", post_id=post_id)
 
-    if request.method == "POST":
-        form = PostCreateForm(request.POST, instance=post)
-        if form.is_valid():
-            form.save()
-            return redirect("posts:post_detail", post_id=post_id)
+    form = PostCreateForm(
+        request.POST or None,
+        files=request.FILES or None,
+        instance=post
+    )
 
-    else:
-        form = PostCreateForm(instance=post)
+    if form.is_valid():
+        form.save()
+        return redirect("posts:post_detail", post_id=post_id)
 
     context = {
         "form": form,
