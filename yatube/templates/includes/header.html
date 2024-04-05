@@ -16,7 +16,7 @@
             {% if user.is_authenticated %}
               <!-- Пункты меню для авторизованного пользователя -->
               <li class="nav-item "> 
-                <a class="nav-link text-primary{% if view_name == 'about:author' %}active text-white{% endif %}"
+                <a class="nav-link {% if view_name == 'about:author' %}active text-white{% endif %}"
                   href="{% url 'about:author' %}">Об авторе</a>
               </li>
               <li class="nav-item">
