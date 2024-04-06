@@ -4,7 +4,7 @@ from .models import Post, Group
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 
-from .forms import PostCreateForm
+from .forms import PostForm
 
 
 User = get_user_model()
@@ -48,10 +48,10 @@ def profile(request, username):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     context = {"user": user, "page_obj": page_obj}
+    
     return render(request, "posts/profile.html", context)
 
 
-@login_required
 def post_detail(request, post_id):
     """страница отдельного поста"""
     post = get_object_or_404(Post, pk=post_id)
@@ -63,25 +63,24 @@ def post_detail(request, post_id):
 @login_required
 def post_create(request):
     if request.method == 'POST':
-        form = PostCreateForm(request.POST, request.FILES)
+        form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
             post.save()
             return redirect('posts:index')
     else:
-        form = PostCreateForm()
+        form = PostForm()
     return render(request, 'posts/create_post.html', {'form': form})
 
 
-@login_required
 def post_edit(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
 
     if request.user != post.author:
         return redirect("posts:post_detail", post_id=post_id)
 
-    form = PostCreateForm(
+    form = PostForm(
         request.POST or None,
         files=request.FILES or None,
         instance=post

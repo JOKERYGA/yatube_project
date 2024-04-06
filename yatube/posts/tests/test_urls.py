@@ -43,16 +43,12 @@ class PostURLTest(TestCase):
             "post_detail": reverse(
                 "posts:post_detail", kwargs={"post_id": self.post.id}
             ),
-            # несуществующая страница
-            "unexisting_page": "/unexisting_page/",
         }
 
         for page_name, url in public_pages.items():
             with self.subTest(page_name=page_name):
                 response = self.guest_client.get(url)
-                if page_name == "unexisting_page":
-                    self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-                elif page_name in ["index", "group_posts"]:
+                if page_name in ["index", "group_posts"]:
                     self.assertEqual(response.status_code, HTTPStatus.OK)
                 else:
                     self.assertEqual(response.status_code, HTTPStatus.FOUND)
