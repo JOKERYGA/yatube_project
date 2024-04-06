@@ -4,7 +4,7 @@ from .models import Post, Group
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 
-from .forms import PostForm
+from .forms import PostForm, CommentForm
 
 
 User = get_user_model()
@@ -80,15 +80,13 @@ def post_edit(request, post_id):
     if request.user != post.author:
         return redirect("posts:post_detail", post_id=post_id)
 
-    form = PostForm(
-        request.POST or None,
-        files=request.FILES or None,
-        instance=post
-    )
-
-    if form.is_valid():
-        form.save()
-        return redirect("posts:post_detail", post_id=post_id)
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect("posts:post_detail", post_id=post_id)
+    else:
+        form = PostForm(instance=post)
 
     context = {
         "form": form,
@@ -97,3 +95,16 @@ def post_edit(request, post_id):
     }
 
     return render(request, "posts/create_post.html", context)
+
+@login_required
+def add_comment(request, post_id):
+    #Получаем пост
+    post = get_object_or_404(Post, pk=post_id)
+    
+    form = CommentForm(request.POST or None)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.author = request.user
+        comment.post = post
+        form.save()
+    return redirect("post:post_detail.html", post_id=post_id)

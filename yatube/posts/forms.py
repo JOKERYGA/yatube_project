@@ -1,5 +1,6 @@
+from dataclasses import fields
 from django import forms
-from .models import Post
+from .models import Post, Comment
 from pytils.translit import slugify
 from django.core.exceptions import ValidationError
 
@@ -17,10 +18,17 @@ class PostForm(forms.ModelForm):
         slug = cleaned_data.get('slug')
         if not slug:
             title = cleaned_data.get('title')
-            slug = slugify(title)[:100]
+            slug = slugify(title)[:50]
         if Post.objects.filter(slug=slug).exists():
             raise ValidationError(
                 f'Адрес "{slug}" уже существует, '
                 'придумайте уникальное значение'
             )
         return slug
+
+
+class CommentForm(forms.ModelForm):
+
+    class Meta:
+        model = Comment
+        fields = ['text', 'created']

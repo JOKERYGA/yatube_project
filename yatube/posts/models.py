@@ -1,7 +1,5 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.forms import ImageField
-
 
 # Create your models here.
 User = get_user_model()
@@ -55,3 +53,26 @@ class Group(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        verbose_name="Комментарии к посту",
+        related_name="comments",
+        blank=True,
+        null=True
+    )
+    author = models.ForeignKey(User,
+                               on_delete=models.CASCADE,
+                               related_name='comments',
+                               blank=True,
+                               null=True
+                               )
+    text = models.TextField('Текст поста',
+                            help_text='Введите текст для комментария'
+                            )
+    created = models.DateTimeField("Дата и время публикации",
+                                   auto_now_add=True
+                                   )
