@@ -1,4 +1,3 @@
-from dataclasses import fields
 from django import forms
 from .models import Post, Comment
 from pytils.translit import slugify
@@ -31,4 +30,4 @@ class CommentForm(forms.ModelForm):
 
     class Meta:
         model = Comment
-        fields = ['text', 'created']
+        fields = ['text']

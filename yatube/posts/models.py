@@ -73,6 +73,4 @@ class Comment(models.Model):
     text = models.TextField('Текст поста',
                             help_text='Введите текст для комментария'
                             )
-    created = models.DateTimeField("Дата и время публикации",
-                                   auto_now_add=True
-                                   )
+    created = models.DateTimeField(auto_now_add=True)

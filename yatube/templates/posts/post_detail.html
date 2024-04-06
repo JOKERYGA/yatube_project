@@ -8,6 +8,7 @@
 
 {% block content %}
     <div class="row">
+        {% load user_filters %}
         <aside class="col-12 col-md-3">
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
@@ -43,6 +44,46 @@
             <p>
                 {{ post.text }}
             </p>
+
+            {% if request.user == post.author %}
+                <a class="btn btn-primary no-underline" href="{% url 'posts:post_edit' post.pk %}">редактировать запись</a>
+            {% endif %}
+            
+            {% if user.is_authenticated %}
+            <div class="card my-4">
+                <h5 class="card-header">Добавить комментарий:</h5>
+                <div class="card-body">
+                <form method="post" action="{% url 'posts:add_comment' post.id %}">
+                    {% csrf_token %}      
+                    <div class="form-group mb-2">
+                    {{ form.text|addclass:"form-control" }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Отправить</button>
+                </form>
+                </div>
+            </div>
+            {% endif %}
+
+            {% for comment in comments %}
+            <div class="media mb-4">
+                <div class="media-body">
+                <h5 class="mt-0">
+                    <a href="{% url 'posts:profile' comment.author.username %}">
+                    {{ comment.author.username }}
+                    </a>
+                </h5>
+                    <p>
+                    {{ comment.text }}
+                    </p>
+                    {% if user.is_authenticated and user == comment.author %}
+                        <form action="{% url 'posts:delete_comment' comment.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Удалить</button>
+                        </form>
+                    {% endif %} 
+                </div>
+            </div>
+            {% endfor %}
         </article>
     </div>
 {% endblock %}

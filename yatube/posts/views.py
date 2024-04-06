@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Post, Group
+from .models import Post, Group, Comment
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 
@@ -48,30 +48,32 @@ def profile(request, username):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     context = {"user": user, "page_obj": page_obj}
-    
+
     return render(request, "posts/profile.html", context)
 
 
 def post_detail(request, post_id):
     """страница отдельного поста"""
     post = get_object_or_404(Post, pk=post_id)
+    comments = post.comments.all()
+    form = CommentForm()
 
-    context = {"post": post}
+    context = {"post": post, "form": form, "comments": comments}
     return render(request, "posts/post_detail.html", context)
 
 
 @login_required
 def post_create(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
             post.save()
-            return redirect('posts:index')
+            return redirect("posts:index")
     else:
         form = PostForm()
-    return render(request, 'posts/create_post.html', {'form': form})
+    return render(request, "posts/create_post.html", {"form": form})
 
 
 def post_edit(request, post_id):
@@ -80,7 +82,7 @@ def post_edit(request, post_id):
     if request.user != post.author:
         return redirect("posts:post_detail", post_id=post_id)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = PostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
             form.save()
@@ -96,15 +98,29 @@ def post_edit(request, post_id):
 
     return render(request, "posts/create_post.html", context)
 
+
 @login_required
 def add_comment(request, post_id):
-    #Получаем пост
     post = get_object_or_404(Post, pk=post_id)
     
     form = CommentForm(request.POST or None)
-    if form.is_valid():
+    if request.method == 'POST' and form.is_valid():
         comment = form.save(commit=False)
         comment.author = request.user
         comment.post = post
-        form.save()
-    return redirect("post:post_detail.html", post_id=post_id)
+        comment.save()
+        return redirect('posts:post_detail', post_id=post_id)
+
+    comments = post.comments.all()
+    return render(request, 'posts/post_detail.html', {'post': post, 'form': form, 'comments': comments})
+
+@login_required
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    
+    # Проверяем, имеет ли текущий пользователь право удалять комментарий
+    if request.user == comment.author:
+        comment.delete()
+    
+    # После удаления комментария перенаправляем пользователя на страницу, откуда он пришел
+    return redirect(request.META.get('HTTP_REFERER'))
