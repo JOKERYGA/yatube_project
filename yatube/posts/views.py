@@ -3,13 +3,14 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Group, Comment
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
+from django.views.decorators.cache import cache_page
 
 from .forms import PostForm, CommentForm
 
 
 User = get_user_model()
 
-
+@cache_page(20)
 def index(request):
     posts_list = Post.objects.all().order_by("-pub_date")
     # Если порядок сортировки определен в классе Meta модели,
@@ -51,7 +52,7 @@ def profile(request, username):
 
     return render(request, "posts/profile.html", context)
 
-
+@login_required
 def post_detail(request, post_id):
     """страница отдельного поста"""
     post = get_object_or_404(Post, pk=post_id)
@@ -75,7 +76,7 @@ def post_create(request):
         form = PostForm()
     return render(request, "posts/create_post.html", {"form": form})
 
-
+@login_required
 def post_edit(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
 
@@ -102,7 +103,7 @@ def post_edit(request, post_id):
 @login_required
 def add_comment(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
-    
+
     form = CommentForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         comment = form.save(commit=False)
@@ -114,13 +115,14 @@ def add_comment(request, post_id):
     comments = post.comments.all()
     return render(request, 'posts/post_detail.html', {'post': post, 'form': form, 'comments': comments})
 
+
 @login_required
 def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
-    
+
     # Проверяем, имеет ли текущий пользователь право удалять комментарий
     if request.user == comment.author:
         comment.delete()
-    
+
     # После удаления комментария перенаправляем пользователя на страницу, откуда он пришел
     return redirect(request.META.get('HTTP_REFERER'))

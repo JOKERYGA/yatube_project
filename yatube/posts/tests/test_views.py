@@ -1,9 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
-from django.core.paginator import Paginator
+from django.core.cache import cache
 
-from posts.models import Post, Group
+from posts.models import Post, Group, Comment
 
 User = get_user_model()
 
@@ -31,6 +31,7 @@ class TestPagesTests(TestCase):
         self.authorized_client.force_login(self.user)
 
     def test_views_templates(self):
+        """Проверка соотношения html"""
         template_names = {
             "posts/index.html": reverse("posts:index"),
             "posts/group_list.html": reverse("posts:group_posts", kwargs={"slug": self.group.slug}),
@@ -39,7 +40,34 @@ class TestPagesTests(TestCase):
             "posts/create_post.html": reverse("posts:post_create"),
         }
 
+        cache.clear() 
+        
         for template, url in template_names.items():
             with self.subTest(url=url):
                 response = self.authorized_client.get(url)
                 self.assertTemplateUsed(response, template)
+                
+
+    def test_commenting(self):
+        """Комментировать посты может только авторизованный пользователь"""
+        # Отправляем POST-запрос на страницу добавления комментария
+        response = self.authorized_client.post(reverse("posts:add_comment", kwargs={"post_id":self.post.id}), {"text": "Test comment"})
+        
+        # Проверяем, что комментарий добавлен
+        # Проверяем, что происходит перенаправление
+        self.assertEqual(response.status_code, 302)
+        # Проверяем, что комментарий добавлен
+        self.assertTrue(Comment.objects.filter(text="Test comment").exists())
+
+    def test_add_comment(self):
+        """после успешной отправки комментарий появляется на странице поста."""
+        comment_text = "Test comment"
+        response = self.authorized_client.post(
+            reverse("posts:add_comment", kwargs={"post_id":self.post.id}),
+            {"text": comment_text}, follow=True
+            )
+
+        # Проверяем, что запрос прошел успешно
+        self.assertEqual(response.status_code, 200)
+        # Проверяем, что комментарий появился на странице
+        self.assertContains(response, comment_text)

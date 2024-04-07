@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from core.models import CreatedModel
 
 # Create your models here.
 User = get_user_model()
@@ -55,7 +56,7 @@ class Group(models.Model):
         return self.title
 
 
-class Comment(models.Model):
+class Comment(CreatedModel):
     post = models.ForeignKey(
         Post,
         on_delete=models.CASCADE,
@@ -70,7 +71,6 @@ class Comment(models.Model):
                                blank=True,
                                null=True
                                )
-    text = models.TextField('Текст поста',
-                            help_text='Введите текст для комментария'
+    text = models.TextField('Текст',
+                            help_text='Текст нового комментария'
                             )
-    created = models.DateTimeField(auto_now_add=True)

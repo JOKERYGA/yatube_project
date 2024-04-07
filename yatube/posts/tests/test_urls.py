@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from posts.models import Post, Group
 from http import HTTPStatus
+from django.core.cache import cache
 
 User = get_user_model()
 
@@ -83,12 +84,14 @@ class PostURLTest(TestCase):
             "posts/create_post.html": reverse(
                 "posts:post_create"),
         }
+        # Очистка кэша перед каждым запросом
+        cache.clear()
 
         for template, url in templates_url_names.items():
             with self.subTest(url=url):
                 response = self.authorized_client.get(url)
                 self.assertTemplateUsed(response, template)
-
+                
     def test_creat_post_template(self):
         response = self.authorized_client.get(reverse("posts:post_create"))
         self.assertTemplateUsed(response, "posts/create_post.html")
