@@ -10,7 +10,7 @@ from .forms import PostForm, CommentForm
 
 User = get_user_model()
 
-@cache_page(20)
+@cache_page(20, key_prefix='index_page')
 def index(request):
     posts_list = Post.objects.all().order_by("-pub_date")
     # Если порядок сортировки определен в классе Meta модели,

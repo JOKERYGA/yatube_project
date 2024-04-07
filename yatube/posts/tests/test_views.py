@@ -47,7 +47,6 @@ class TestPagesTests(TestCase):
                 response = self.authorized_client.get(url)
                 self.assertTemplateUsed(response, template)
                 
-
     def test_commenting(self):
         """Комментировать посты может только авторизованный пользователь"""
         # Отправляем POST-запрос на страницу добавления комментария
@@ -71,3 +70,19 @@ class TestPagesTests(TestCase):
         self.assertEqual(response.status_code, 200)
         # Проверяем, что комментарий появился на странице
         self.assertContains(response, comment_text)
+
+    def test_cache_works(self):
+        # Удаляем первую запись
+        first_post = Post.objects.first()
+        first_post.delete()
+        
+        # Проверяем, что запись больше не отображается на главной странице после удаления
+        response = self.guest_client.get(reverse('posts:index'))
+        self.assertNotContains(response, first_post.text)
+
+        # Очищаем кэш
+        cache.clear()
+
+        # Проверяем, что запись исчезла из кэша и не отображается на главной странице
+        response = self.guest_client.get(reverse('posts:index'))
+        self.assertNotContains(response, first_post.text)
