@@ -74,3 +74,28 @@ class Comment(CreatedModel):
     text = models.TextField('Текст',
                             help_text='Текст нового комментария'
                             )
+    
+    def __str__(self):
+        return f"{self.author.username} - {self.text}"
+
+
+class Follow(CreatedModel):
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
+                             related_name='follower',
+                             verbose_name='Подписчик',
+                             blank=True,
+                             null=True
+                             )
+    author = models.ForeignKey(User,
+                               on_delete=models.CASCADE,
+                               related_name='following',
+                               verbose_name='Автор',
+                               blank=True,
+                               null=True)
+
+    class Meta:
+        unique_together = ['user', 'author']
+
+    def __str__(self):
+        return f"{self.user} подписан на {self.author}"

@@ -11,7 +11,7 @@
   <!-- Перебор всех постов в группе -->
   {% if group_posts %}
     <!-- Если есть посты в группе -->
-    {% for post in group_posts %}
+    {% for post in page_obj %}
       <article>
         <ul>
           <li>
@@ -32,4 +32,5 @@
     <!-- Если в группе нет постов -->
     <p>В этой группе пока нет постов.</p>
   {% endif %}
+  {% include 'posts/includes/paginator.html' %}
 {% endblock %}

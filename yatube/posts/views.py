@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Post, Group, Comment
+from .models import Post, Group, Comment, Follow
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.views.decorators.cache import cache_page
@@ -26,7 +26,7 @@ def index(request):
     page_obj = paginator.get_page(page_number)
 
     context = {
-        "page_obj": page_obj,
+        "page_obj": page_obj
     }
     return render(request, "posts/index.html", context)
 
@@ -35,8 +35,12 @@ def index(request):
 def group_posts(request, slug):
     # Получаем объект группы по переданному slug или возвращаем ошибку 404, если группа не найдена
     group = get_object_or_404(Group, slug=slug)
-    group_posts = Post.objects.filter(group=group).order_by("-pub_date")[:10]
-    context = {"group": group, "group_posts": group_posts}
+    group_posts = Post.objects.filter(group=group).order_by("-pub_date")
+    
+    paginator = Paginator(group_posts, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    context = {"group_posts": group_posts, "page_obj": page_obj}
     return render(request, "posts/group_list.html", context)
 
 
@@ -126,3 +130,44 @@ def delete_comment(request, comment_id):
 
     # После удаления комментария перенаправляем пользователя на страницу, откуда он пришел
     return redirect(request.META.get('HTTP_REFERER'))
+
+@login_required
+def follow_index(request):
+    """Посты авторов, на которых подписан текущий пользователь"""
+    # Получаем подписки текущего пользователя
+    following = Follow.objects.filter(user=request.user)
+    # Получаем посты от авторов, на которых подписан текущий пользователь
+    posts = Post.objects.filter(
+        author__in=[follow.author for follow in following]
+        )
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    
+    context = {"page_obj": page_obj}
+    
+    return render(request, 'posts/follow.html', context)
+
+@login_required
+def profile_follow(request, username):
+    """Подписаться на автора"""
+    # Получаем пользователя, на которого хочет подписаться текущий пользователь
+    author = get_object_or_404(User, user=username)
+    # Проверяем, не пытается ли текущий пользователь подписаться на самого себя
+    if request.author == author:
+        return redirect('posts:profile', username=username)
+    # Проверяем, не подписан ли уже текущий пользователь на этого автора
+    if Follow.objects.filter(user=request.user, author=author).exists():
+        return redirect('posts:profile', username=username)
+    # Создаем запись о подписке
+    Follow.objects.create(user=request.user, author=author)
+    return redirect(request.META.get("HTTP_REFERER"))
+    #redirect("posts:profile", username=username)
+
+@login_required
+def profile_unfollow(request, username):
+    """Отписаться от автора"""
+    # Получаем пользователя, от которого хочет отписаться текущий пользователь
+    author = get_object_or_404(User, username=username)
+    Follow.objects.filter(user=request.user, author=author).delete()
+    return redirect("posts:profile", username=username)
