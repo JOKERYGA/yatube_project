@@ -31,7 +31,6 @@ def index(request):
     return render(request, "posts/index.html", context)
 
 
-# groups = Group.objects.all()
 def group_posts(request, slug):
     # Получаем объект группы по переданному slug или возвращаем ошибку 404, если группа не найдена
     group = get_object_or_404(Group, slug=slug)
@@ -40,7 +39,11 @@ def group_posts(request, slug):
     paginator = Paginator(group_posts, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    context = {"group_posts": group_posts, "page_obj": page_obj}
+    context = {
+        "group": group,
+        "group_posts": group_posts,
+        "page_obj": page_obj
+        }
     return render(request, "posts/group_list.html", context)
 
 
