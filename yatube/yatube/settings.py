@@ -26,10 +26,8 @@ SECRET_KEY = '0$22%u!j_ppbj1c*aa@*(26n(n253wh*k3sy6+$p-fnid@d*i&'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    '[::1]',
-    'testserver',
+    'www.hobbycenter.pythonanywhere.com',
+    'hobbycenter.pythonanywhere.com',
 ]
 
 INTERNAL_IPS = [
