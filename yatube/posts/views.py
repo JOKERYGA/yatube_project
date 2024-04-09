@@ -179,8 +179,7 @@ def profile_follow(request, username):
         return redirect('posts:profile', username=username)
     # Создаем запись о подписке
     Follow.objects.create(user=request.user, author=author)
-    return redirect(request.META.get("HTTP_REFERER"))
-    # redirect("posts:profile", username=username)
+    return redirect("posts:profile", username=username)
 
 @login_required
 def profile_unfollow(request, username):
@@ -188,5 +187,5 @@ def profile_unfollow(request, username):
     # Получаем пользователя, от которого хочет отписаться текущий пользователь
     author = get_object_or_404(User, username=username)
     Follow.objects.filter(user=request.user, author=author).delete()
-    return redirect(request.META.get("HTTP_REFERER"))
-    # return redirect("posts:profile", username=username)
+    return redirect("posts:profile", username=username)
+    # return redirect(request.META.get("HTTP_REFERER"))

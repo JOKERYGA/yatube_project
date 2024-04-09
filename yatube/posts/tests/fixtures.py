@@ -7,7 +7,7 @@ from ..models import Group, Post
 User = get_user_model()
 
 # Как пример, можно заранее подготовить файл с фикстурами, чтобы использовать его во всех тестах
-# Я для отработки навыков сделал задания в лоб.
+# Я для отработки навыков сделал функциональность в лоб.
 class PostFixturesTest(TestCase):
     @classmethod
     def setUpClass(cls) -> None:

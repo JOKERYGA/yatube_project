@@ -3,7 +3,8 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from django.core.cache import cache
 
-from posts.models import Post, Group, Comment
+from posts.models import Post, Group, Comment, Follow
+from .fixtures import PostFixturesTest
 
 User = get_user_model()
 
@@ -86,3 +87,25 @@ class TestPagesTests(TestCase):
         # Проверяем, что запись исчезла из кэша и не отображается на главной странице
         response = self.guest_client.get(reverse('posts:index'))
         self.assertNotContains(response, first_post.text)
+
+
+class TestFollow(PostFixturesTest):
+    def test_follow(self):
+        """Проверяем, что пользователь может подписаться на другого пользователя"""
+        response = self.authorized_client.post(reverse("posts:profile_follow", kwargs={'username': self.user2.username}))
+        # Проверяем, что происходит перенаправление
+        self.assertEqual(response.status_code, 302)
+        # Проверяем, что подписка создана
+        self.assertTrue(Follow.objects.filter(user=self.user, author=self.user2).exists())
+
+    def test_unfollow(self):
+        """Проверяем, что пользователь может отписаться на другого пользователя"""
+        # Создаем подписку
+        Follow.objects.create(user=self.user, author=self.user2)
+        response = self.authorized_client.post(reverse("posts:profile_unfollow", kwargs={"username": self.user.username}))
+        self.assertEqual(response.status_code, 302)
+        
+        Follow.objects.filter(user=self.user, author=self.user2).delete()
+        # Проверяем, что подписка удалена
+        self.assertFalse(Follow.objects.filter(user=self.user, author=self.user2).exists())
+        
