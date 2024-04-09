@@ -50,14 +50,25 @@ def group_posts(request, slug):
 @login_required
 def profile(request, username):
     """персональная страница автора"""
-    user = get_object_or_404(User, username=username)
-    user_posts = Post.objects.filter(author=user).order_by("-pub_date")
+    author = get_object_or_404(User, username=username)
+    user_posts = Post.objects.filter(author=author).order_by("-pub_date")
     paginator = Paginator(user_posts, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    context = {"user": user, "page_obj": page_obj}
+
+    following = Follow.objects.filter(user=request.user, author=author)
+    
+    is_own_profile = request.user == author
+
+    context = {
+        "author": author,
+        "page_obj": page_obj,
+        "following": following,
+        "is_own_profile": is_own_profile
+    }
 
     return render(request, "posts/profile.html", context)
+
 
 @login_required
 def post_detail(request, post_id):
@@ -134,6 +145,7 @@ def delete_comment(request, comment_id):
     # После удаления комментария перенаправляем пользователя на страницу, откуда он пришел
     return redirect(request.META.get('HTTP_REFERER'))
 
+
 @login_required
 def follow_index(request):
     """Посты авторов, на которых подписан текущий пользователь"""
@@ -147,7 +159,10 @@ def follow_index(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     
-    context = {"page_obj": page_obj}
+    context = {
+        "following": following,
+        "posts": posts,
+        "page_obj": page_obj}
     
     return render(request, 'posts/follow.html', context)
 
@@ -155,9 +170,9 @@ def follow_index(request):
 def profile_follow(request, username):
     """Подписаться на автора"""
     # Получаем пользователя, на которого хочет подписаться текущий пользователь
-    author = get_object_or_404(User, user=username)
+    author = get_object_or_404(User, username=username)
     # Проверяем, не пытается ли текущий пользователь подписаться на самого себя
-    if request.author == author:
+    if request.user == author:
         return redirect('posts:profile', username=username)
     # Проверяем, не подписан ли уже текущий пользователь на этого автора
     if Follow.objects.filter(user=request.user, author=author).exists():
@@ -165,7 +180,7 @@ def profile_follow(request, username):
     # Создаем запись о подписке
     Follow.objects.create(user=request.user, author=author)
     return redirect(request.META.get("HTTP_REFERER"))
-    #redirect("posts:profile", username=username)
+    # redirect("posts:profile", username=username)
 
 @login_required
 def profile_unfollow(request, username):
@@ -173,4 +188,5 @@ def profile_unfollow(request, username):
     # Получаем пользователя, от которого хочет отписаться текущий пользователь
     author = get_object_or_404(User, username=username)
     Follow.objects.filter(user=request.user, author=author).delete()
-    return redirect("posts:profile", username=username)
+    return redirect(request.META.get("HTTP_REFERER"))
+    # return redirect("posts:profile", username=username)

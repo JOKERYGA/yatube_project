@@ -2,42 +2,53 @@
 {% load static %}
 {% load thumbnail %}
 {% block title %}
-    {{ user.get_full_name }} Профайл пользователя
+    {{ author.get_full_name }} Профайл пользователя
 {% endblock %}
 
 {% block content %}
-    <div class="container py-5">     
-        <h1>Все посты пользователя {{ user.get_full_name }} </h1>
-        <h3>Всего постов: {{ page_obj.paginator.count }} </h3>
-        {% for post in page_obj %}
-            <article>
-                <ul>
-                    <li>
-                        Дата публикации: {{ post.pub_date }}
-                    </li>
-                </ul>
-                {% thumbnail post.image "960x339" upscale=True as im %}
-                    <img class="card-img my-2" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-                {%endthumbnail%}
-                <p>
-                    {{ post.text }}
-                </p>
+<div class="container py-5">
+    <div class="mb-5">
+        <h1>Все посты пользователя {{ author.get_full_name }}</h1>
+        <h3>Всего постов: {{ posts_count }}</h3>
+        {% if not is_own_profile %}
+            {% if following %}
+            <a class="btn btn-lg btn-light"
+                href="{% url 'posts:profile_unfollow' author.username %}" role="button">
+                Отписаться
+            </a>
+            {% else %}
+                <a class="btn btn-lg btn-primary"
+                href="{% url 'posts:profile_follow' author.username %}" role="button">
+                Подписаться
+                </a>
+            {% endif %}
+        {% endif %}
+    </div>
 
-                
-                <a href="{% url 'posts:post_detail' post.pk %}">подробная информация</a><br>
-                {% if post.group %}
+    {% for post in page_obj %}
+        <article>
+            <ul>
+                <li>Дата публикации: {{ post.pub_date }}</li>
+            </ul>
+            {% thumbnail post.image "960x339" upscale=True as im %}
+                <img class="card-img my-2" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+            {% endthumbnail %}
+            <p>{{ post.text }}</p>
+
+            <a href="{% url 'posts:post_detail' post.pk %}">подробная информация</a><br>
+            {% if post.group %}
                 <a href="{% url 'posts:group_posts' slug=post.group.slug %}">все записи группы</a><br>
-                {% endif %}
+            {% endif %}
 
-                {% if request.user == post.author %}
+            {% if request.author == post.author %}
                 <a href="{% url 'posts:post_edit' post.pk %}">редактировать</a>
-                {% endif %}
+            {% endif %}
+            {% if not forloop.last %}<hr>{% endif %}
+        </article>
+    {% endfor %}
 
-                {% if not forloop.last %}<hr>{% endif %}
-            </article>
-        {% endfor %}
-        <div class="pagination">
-            {% include 'posts/includes/paginator.html' %}
-        </div>
-    <\<div>
+    <div class="pagination">
+        {% include 'posts/includes/paginator.html' %}
+    </div>
+</div>
 {% endblock %}
